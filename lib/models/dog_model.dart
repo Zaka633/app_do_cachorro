@@ -6,6 +6,7 @@ class Dog {
   int idade;
   String telefone;
   String? imagem;
+  DateTime dataAdicao;
 
   Dog({
     this.id,
@@ -15,6 +16,7 @@ class Dog {
     required this.idade,
     required this.telefone,
     this.imagem,
+    required this.dataAdicao,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +28,7 @@ class Dog {
       'idade': idade,
       'telefone': telefone,
       'imagem': imagem,
+      'dataAdicao': dataAdicao.toIso8601String(),
     };
   }
 
@@ -38,6 +41,7 @@ class Dog {
       idade: map['idade'],
       telefone: map['telefone'],
       imagem: map['imagem'],
+      dataAdicao: DateTime.parse(map['dataAdicao']),
     );
   }
 }

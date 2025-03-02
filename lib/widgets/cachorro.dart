@@ -1,11 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:app_do_cachorro2/screens/home_screen.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final ValueNotifier<ThemeMode> _themeMode = ValueNotifier(ThemeMode.light);
+
+  void _toggleTheme() {
+    _themeMode.value =
+        _themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+  } //aqui criei o metodo que vai mudar o tema do app
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: HomeScreen(), debugShowCheckedModeBanner: false);
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: _themeMode,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          themeMode: themeMode,
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          home: HomeScreen(
+            toggleTheme: _toggleTheme,
+          ), //e aqui eu já puxei o metodo para a tela home
+        );
+      },
+    );
   }
 }
