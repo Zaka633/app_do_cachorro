@@ -1,4 +1,4 @@
-# app_do_cachorro2
+# app_do_cachorro
 
 Projeto CRUD Flutter básico. Este aplicativo permite adicionar, editar, excluir e visualizar detalhes de cachorros, incluindo a capacidade de compartilhar os detalhes em formato PDF.
 
