@@ -1,11 +1,14 @@
 import 'package:app_do_cachorro2/screens/creation_screen.dart';
+import 'dart:convert';
 import 'package:app_do_cachorro2/db/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:app_do_cachorro2/models/dog_model.dart';
 import 'package:app_do_cachorro2/screens/detalhes_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback toggleTheme;
+
+  const HomeScreen({super.key, required this.toggleTheme});
 
   @override
   HomeScreenState createState() => HomeScreenState();
@@ -13,23 +16,38 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _dogs = [];
+  List<Map<String, dynamic>> _filteredDogs = [];
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadDogs();
+    _searchController.addListener(_filterDogs);
   }
 
   Future<void> _loadDogs() async {
     final data = await DatabaseHelper().queryAllDogs();
     setState(() {
       _dogs = data;
+      _filteredDogs = data;
     });
   }
 
   Future<void> _deleteDog(int id) async {
     await DatabaseHelper().deleteDog(id);
     _loadDogs();
+  }
+
+  void _filterDogs() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredDogs =
+          _dogs.where((dog) {
+            final nome = dog['nome'].toLowerCase();
+            return nome.contains(query);
+          }).toList();
+    });
   }
 
   @override
@@ -42,6 +60,12 @@ class HomeScreenState extends State<HomeScreen> {
           'App do Cachorro',
           style: TextStyle(color: Colors.lightBlue),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.brightness_6),
+            onPressed: widget.toggleTheme,
+          ),
+        ],
       ),
       body: _buildBody(),
       floatingActionButton: _buildFloatingActionButton(),
@@ -53,11 +77,22 @@ class HomeScreenState extends State<HomeScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              labelText: 'Buscar por nome',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
+        ),
         Expanded(
           child: ListView.builder(
-            itemCount: _dogs.length,
+            itemCount: _filteredDogs.length,
             itemBuilder: (context, index) {
-              final dog = _dogs[index];
+              final dog = _filteredDogs[index];
               return _buildDogTile(dog);
             },
           ),
@@ -78,7 +113,12 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDogImage(String? image) {
     return image != null
-        ? Image.network(image, width: 50, height: 50, fit: BoxFit.cover)
+        ? Image.memory(
+          base64Decode(image),
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+        )
         : Icon(Icons.pets, size: 50);
   }
 

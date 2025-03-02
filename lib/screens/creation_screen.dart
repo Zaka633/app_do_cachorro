@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:app_do_cachorro2/db/db_helper.dart';
 import 'package:app_do_cachorro2/models/dog_model.dart';
 import 'package:app_do_cachorro2/services/carregar_img.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class CreationScreen extends StatefulWidget {
   final Dog? dog;
@@ -47,9 +49,14 @@ class CreationScreenState extends State<CreationScreen> {
     try {
       final dogImageService = DogImageService();
       final imageUrl = await dogImageService.fetchDogImage();
-      setState(() {
-        _base64Image = imageUrl?.url;
-      });
+      final response = await http.get(Uri.parse(imageUrl!.url));
+      if (response.statusCode == 200) {
+        setState(() {
+          _base64Image = base64Encode(response.bodyBytes);
+        });
+      } else {
+        throw Exception('Failed to load image');
+      }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -126,7 +133,7 @@ class CreationScreenState extends State<CreationScreen> {
             _isLoading
                 ? Center(child: CircularProgressIndicator())
                 : _base64Image != null
-                ? Image.network(_base64Image!, fit: BoxFit.cover)
+                ? Image.memory(base64Decode(_base64Image!), fit: BoxFit.cover)
                 : Icon(Icons.add_a_photo, color: Colors.grey, size: 50),
       ),
     );
@@ -140,17 +147,7 @@ class CreationScreenState extends State<CreationScreen> {
   }) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.black),
-        border: OutlineInputBorder(),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.green),
-        ),
-      ),
+      decoration: InputDecoration(labelText: label),
       keyboardType:
           isNumeric
               ? TextInputType.number
@@ -173,11 +170,11 @@ class CreationScreenState extends State<CreationScreen> {
           _saveDog();
         }
       },
+      child: Text(widget.dog == null ? 'Cadastrar' : 'Atualizar'),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.lightGreenAccent,
         foregroundColor: Colors.lightBlue,
       ),
-      child: Text(widget.dog == null ? 'Cadastrar' : 'Atualizar'),
     );
   }
 
@@ -190,6 +187,7 @@ class CreationScreenState extends State<CreationScreen> {
       idade: int.tryParse(_idadeController.text) ?? 0,
       telefone: _telefoneController.text,
       imagem: _base64Image,
+      dataAdicao: widget.dog?.dataAdicao ?? DateTime.now(),
     );
 
     if (widget.dog == null) {

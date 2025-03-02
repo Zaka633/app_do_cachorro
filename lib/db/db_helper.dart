@@ -16,7 +16,12 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'doguinhos.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -28,9 +33,16 @@ class DatabaseHelper {
         peso REAL,
         idade INTEGER,
         telefone TEXT,
-        imagem TEXT
+        imagem TEXT,
+        dataAdicao TEXT
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE doguinhos ADD COLUMN dataAdicao TEXT');
+    }
   }
 
   Future<int> insertDog(Map<String, dynamic> row) async {
@@ -40,7 +52,7 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> queryAllDogs() async {
     Database db = await database;
-    return await db.query('doguinhos');
+    return await db.query('doguinhos', orderBy: 'dataAdicao DESC');
   }
 
   Future<void> deleteDog(int id) async {
