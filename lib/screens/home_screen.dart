@@ -9,7 +9,6 @@ class HomeScreen extends StatefulWidget {
   final VoidCallback toggleTheme;
 
   const HomeScreen({super.key, required this.toggleTheme});
-
   @override
   HomeScreenState createState() => HomeScreenState();
 }
@@ -18,6 +17,7 @@ class HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _dogs = [];
   List<Map<String, dynamic>> _filteredDogs = [];
   final TextEditingController _searchController = TextEditingController();
+  //essa função é para pesquisar os cachorros
 
   @override
   void initState() {
@@ -107,7 +107,7 @@ class HomeScreenState extends State<HomeScreen> {
       title: Text(dog['nome']),
       subtitle: Text('Raça: ${dog['raca']}'),
       trailing: _buildTileActions(dog),
-      onTap: () => _navigateToDetalhesScreen(dog),
+      onTap: () => _IrParaDetalhes(dog),
     );
   }
 
@@ -128,7 +128,7 @@ class HomeScreenState extends State<HomeScreen> {
       children: <Widget>[
         IconButton(
           icon: Icon(Icons.edit),
-          onPressed: () => _navigateToCreationScreen(dog),
+          onPressed: () => _irParaCreation(dog),
         ),
         IconButton(
           icon: Icon(Icons.delete),
@@ -138,7 +138,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _navigateToCreationScreen(Map<String, dynamic> dog) {
+  void _irParaCreation(Map<String, dynamic> dog) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -147,7 +147,7 @@ class HomeScreenState extends State<HomeScreen> {
     ).then((_) => _loadDogs());
   }
 
-  void _navigateToDetalhesScreen(Map<String, dynamic> dog) {
+  void _IrParaDetalhes(Map<String, dynamic> dog) {
     Navigator.push(
       context,
       MaterialPageRoute(

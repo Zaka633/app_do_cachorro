@@ -12,7 +12,7 @@ class _MyAppState extends State<MyApp> {
   void _toggleTheme() {
     _themeMode.value =
         _themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-  }
+  } //aqui criei o metodo que vai mudar o tema do app
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,9 @@ class _MyAppState extends State<MyApp> {
           themeMode: themeMode,
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
-          home: HomeScreen(toggleTheme: _toggleTheme),
+          home: HomeScreen(
+            toggleTheme: _toggleTheme,
+          ), //e aqui eu já puxei o metodo para a tela home
         );
       },
     );
